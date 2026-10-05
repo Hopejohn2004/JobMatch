@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: jobmatch
+    runtime: python
+    plan: free
+    buildCommand: pip install -e ".[llm]"
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 web_app:app
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.10"
+      - key: FLASK_ENV
+        value: production
+      # Set these in the Render dashboard, never in this file.
+      - key: SECRET_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false

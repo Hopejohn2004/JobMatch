@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,llm]"
+
+      - name: Check package metadata builds
+        run: pip install -e .
+
+      - name: Run tests
+        run: pytest -q --no-header -p no:cacheprovider
+
+      - name: Verify packaging metadata
+        run: python -m pip install build && python -m build --sdist --outdir /tmp/dist
+
+      - name: Lint (informational)
+        continue-on-error: true
+        run: ruff check .
+
+      - name: Type check (informational)
+        continue-on-error: true
+        run: mypy .
+
+      - name: Ensure no secrets are tracked
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$|\.db$|\.bak'; then
+            echo "::error::Sensitive file is tracked in git"
+            exit 1
+          fi
+          echo "No sensitive files tracked."

@@ -100,5 +100,8 @@ htmlcov/
 .dmypy.json
 dmypy.json
 
+# Linting
+.ruff_cache/
+
 # Archive (keep but don't sync)
 archive/

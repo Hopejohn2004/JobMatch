@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "jobmatch"
 version = "0.1.0"
@@ -17,6 +21,30 @@ dependencies = [
     "pillow>=10.0,<11",
     "pypdf>=4.0,<7",
     "paystackapi>=1.0,<2",
+    "redis>=5.0,<6",
+    "gunicorn>=22.0,<24; sys_platform != 'win32'",
+]
+
+[tool.setuptools]
+# This is an application, not a library. Top-level modules are shipped directly;
+# automatic discovery would otherwise trip over the data/static/template directories.
+packages = []
+py-modules = [
+    "apply_all",
+    "auth",
+    "career_crawler",
+    "customer_engine",
+    "cv_tailor",
+    "cv_to_pdf",
+    "database",
+    "extract_email_targets",
+    "import_scanned_jobs",
+    "job_scraper",
+    "migrate_subscriptions",
+    "prefill_apply",
+    "send_applications",
+    "send_followups",
+    "web_app",
 ]
 
 [project.optional-dependencies]
