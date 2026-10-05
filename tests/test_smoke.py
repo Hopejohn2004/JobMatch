@@ -343,13 +343,14 @@ def test_api_validation_missing_field():
 @pytest.mark.security
 def test_api_validation_wrong_type():
     """Wrong data type returns 400."""
-    from web_app import app
+    from web_app import app, get_pin
     app.config['TESTING'] = True
     client = app.test_client()
 
     with client.session_transaction() as sess:
         sess['authed'] = True
-    response = client.post('/api/customer/run', json={'customer_id': 1, 'pin': '311759', 'top': 'invalid'})
+    response = client.post('/api/customer/run',
+                           json={'customer_id': 1, 'pin': get_pin(), 'top': 'invalid'})
     assert response.status_code == 400
 
 
