@@ -1,0 +1,104 @@
+# Environment files with secrets - NEVER COMMIT
+.env
+*.env
+sender_config.env
+web_admin.env
+web_pin.env
+web_secret.env
+cv_tailor.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Playwright browser profile
+.browser_profile/
+
+# Generated data files
+data/*.json
+data/daily_scans/
+data/fetched_jobs/
+!data/.gitkeep
+
+# Customer database - contains emails and password hashes.
+# Never commit; back it up out of band instead.
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.sqlite
+data/*.sqlite3
+
+# Real CV / profile text kept outside the database
+data/*.txt
+data/customer_cv.txt
+data/customer_profile.json
+
+# Extracted CV text (contains personal CV content)
+cv_text/*.txt
+
+# Personal notes and generated reports
+docs/matched_jobs.md
+docs/jobs_report.txt
+
+# Local UI backups
+.ui_backup/
+
+# Backups of any kind - these have contained customer emails,
+# password hashes and session tokens in past database dumps.
+*.bak
+*.bak_*
+*.backup
+
+# Per-customer generated artefacts (CVs, tailored CVs, results)
+data/customers/
+
+# Generated CVs and cover letters
+tailored_cvs/
+cv_pdfs/
+cover_letters/
+
+# Uploaded CVs
+cv_text/*.pdf
+cv_text/*.docx
+cv_text/*.doc
+
+# Application tracker
+applications.csv
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Archive (keep but don't sync)
+archive/

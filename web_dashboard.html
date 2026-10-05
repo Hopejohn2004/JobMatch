@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JobMatch</title>
+<meta name="theme-color" content="#0A0A0F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FAF9FE" media="(prefers-color-scheme: light)">
+<style>
+  /* ============================================================
+     FONTS — self-hosted, works with no internet
+     ============================================================ */
+  @font-face{
+    font-family:'Plus Jakarta Sans';font-style:normal;font-weight:200 800;font-display:swap;
+    src:url('/static/fonts/PlusJakartaSans-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Plus Jakarta Sans';font-style:normal;font-weight:200 800;font-display:swap;
+    src:url('/static/fonts/PlusJakartaSans-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;
+    src:url('/static/fonts/JetBrainsMono-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  :root{
+    --font:'Plus Jakarta Sans',ui-sans-serif,system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;
+    --pri:#7C6BFF; --pri-2:#5B48F5; --pri-soft:rgba(124,107,255,.14);
+    --acc:#FF6B4A; --acc-soft:rgba(255,107,74,.14);
+    --ok:#2ED3A0; --ok-soft:rgba(46,211,160,.14);
+    --warn:#F5A524; --warn-soft:rgba(245,165,36,.14);
+    --bad:#FF5A6A; --bad-soft:rgba(255,90,106,.14);
+    --r-sm:10px; --r:14px; --r-lg:20px; --r-xl:26px; --r-full:999px;
+    --brand-grad:linear-gradient(115deg,var(--pri) 0%,#9B6BFF 45%,var(--acc) 100%);
+    --t:200ms cubic-bezier(.4,0,.2,1);
+  }
+  :root,[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0A0A0F; --bg-2:#0E0E15; --bg-3:#131320;
+    --card:#14141C; --card-2:#1B1B26; --card-3:#22222F;
+    --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
+    --txt:#F5F5F8; --txt-2:#C9C9D6; --mut:#8B8BA0;
+    --shadow-1:0 1px 2px rgba(0,0,0,.5);
+    --shadow-2:0 12px 30px -14px rgba(0,0,0,.75);
+    --shadow-3:0 28px 70px -24px rgba(0,0,0,.9);
+    --log-bg:#08080D;
+    --grid-line:rgba(255,255,255,.04);
+  }
+  [data-theme="light"]{
+    color-scheme:light;
+    --bg:#FAF9FE; --bg-2:#F3F1FB; --bg-3:#EDEBF7;
+    --card:#FFFFFF; --card-2:#F7F5FE; --card-3:#EFECFA;
+    --line:rgba(24,18,58,.10); --line-2:rgba(24,18,58,.19);
+    --txt:#15121F; --txt-2:#3B3552; --mut:#6B6486;
+    --pri:#5B48F5; --pri-2:#4936E0; --pri-soft:rgba(91,72,245,.10);
+    --acc:#E8502C; --acc-soft:rgba(232,80,44,.10);
+    --ok:#0EA97C; --ok-soft:rgba(14,169,124,.12);
+    --warn:#C97A08; --warn-soft:rgba(201,122,8,.12);
+    --bad:#DC2F42; --bad-soft:rgba(220,47,66,.10);
+    --shadow-1:0 1px 2px rgba(24,18,58,.07);
+    --shadow-2:0 12px 30px -14px rgba(24,18,58,.22);
+    --shadow-3:0 28px 66px -26px rgba(24,18,58,.30);
+    --log-bg:#16132A;
+    --grid-line:rgba(24,18,58,.05);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--font);
+    background:var(--bg);color:var(--txt);
+    line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    font-synthesis-weight:none;-webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;padding-bottom:24px;
+    transition:background .35s var(--t),color .35s var(--t);
+  }
+  img,svg{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer;background:none;border:0}
+  :focus-visible{outline:2px solid var(--pri);outline-offset:2px;border-radius:6px}
+  ::selection{background:var(--pri);color:#fff}
+
+  .aura{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+  .aura::before{content:"";position:absolute;width:560px;height:560px;top:-260px;left:-180px;
+    border-radius:50%;filter:blur(90px);
+    background:radial-gradient(circle,rgba(124,107,255,.26),transparent 68%)}
+  .aura::after{content:"";position:absolute;width:520px;height:520px;top:60px;right:-220px;
+    border-radius:50%;filter:blur(90px);
+    background:radial-gradient(circle,rgba(255,107,74,.18),transparent 68%)}
+  [data-theme="light"] .aura::before{background:radial-gradient(circle,rgba(124,107,255,.16),transparent 68%)}
+  [data-theme="light"] .aura::after{background:radial-gradient(circle,rgba(255,107,74,.12),transparent 68%)}
+
+  /* ============================================================
+     HEADER + NAV
+     ============================================================ */
+  header{
+    position:sticky;top:0;z-index:40;
+    background:color-mix(in srgb,var(--bg) 82%,transparent);
+    backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+    border-bottom:1px solid var(--line);
+    padding:12px 14px 0;
+  }
+  .top{display:flex;align-items:center;gap:10px}
+  .brand{display:flex;align-items:center;gap:9px;flex:none}
+  .brand-mark{width:30px;height:30px;flex:none;filter:drop-shadow(0 3px 10px rgba(124,107,255,.5))}
+  .brand-name{font-size:1.05rem;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+  .brand-name em{font-style:normal;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--mut);font-size:.76rem;font-weight:600;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand-block{flex:1;min-width:0}
+
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px 0 10px;
+    border-radius:var(--r-full);border:1px solid var(--line-2);background:var(--card);
+    font-size:.78rem;font-weight:700;color:var(--txt-2);flex:none;transition:all var(--t)}
+  .theme-toggle:hover{color:var(--txt);border-color:var(--pri);transform:translateY(-1px)}
+  .theme-toggle .ti{width:17px;height:17px;flex:none;display:grid;place-items:center}
+  .theme-toggle .ti svg{width:16px;height:16px}
+  [data-theme="dark"] .ic-sun{display:block}
+  [data-theme="dark"] .ic-moon{display:none}
+  [data-theme="light"] .ic-sun{display:none}
+  [data-theme="light"] .ic-moon{display:block}
+  .lock{
+    display:grid;place-items:center;width:38px;height:38px;flex:none;
+    border-radius:var(--r-full);border:1px solid var(--line-2);background:var(--card);
+    font-size:15px;transition:all var(--t)}
+  .lock:hover{border-color:var(--bad);background:var(--bad-soft);transform:translateY(-1px)}
+  .lock svg{width:16px;height:16px}
+
+  #cust-info{gap:9px;flex:none}
+  #cust-name-display{font-weight:700;font-size:.83rem;max-width:34vw;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  #cust-switcher{position:relative}
+  #cust-select{
+    min-width:170px;max-width:220px;height:38px;padding:0 34px 0 12px;border-radius:var(--r-full);
+    border:1px solid var(--line-2);background:var(--card);color:var(--txt);
+    font-size:.8rem;font-weight:700;appearance:none;cursor:pointer;transition:all var(--t)}
+  #cust-select:hover{border-color:var(--pri)}
+  #cust-select option{background:var(--card);color:var(--txt)}
+
+  nav{display:flex;gap:4px;margin:11px -14px 0;padding:0 14px 9px;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:1 0 auto;
+    min-width:88px;min-height:40px;padding:8px 13px;border-radius:var(--r-full);
+    font-size:.82rem;font-weight:700;color:var(--mut);white-space:nowrap;
+    border:1px solid transparent;transition:all var(--t)}
+  nav button svg{width:16px;height:16px;flex:none}
+  nav button:hover{color:var(--txt);background:var(--card-2)}
+  nav button.on{
+    color:var(--txt);background:var(--pri-soft);border-color:color-mix(in srgb,var(--pri) 34%,transparent)}
+
+  main{padding:20px 14px 0;max-width:940px;margin:0 auto}
+
+  /* ============================================================
+     BUILDING BLOCKS
+     ============================================================ */
+  h2{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;line-height:1.2}
+  .lead{color:var(--mut);font-size:.87rem;margin-top:5px;line-height:1.6}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:20px;margin-bottom:14px;box-shadow:var(--shadow-1);transition:border-color var(--t)}
+  .panel:hover{border-color:var(--line-2)}
+  .panel h3{font-size:1rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .step{
+    display:grid;place-items:center;width:26px;height:26px;border-radius:9px;flex:none;
+    background:var(--pri-soft);color:var(--pri);font-size:.8rem;font-weight:800;
+    border:1px solid color-mix(in srgb,var(--pri) 30%,transparent)}
+  .hint{color:var(--mut);font-size:.8rem;margin:5px 0 12px;line-height:1.6}
+
+  label{display:block;font-size:.78rem;font-weight:700;color:var(--txt-2);margin:12px 0 6px}
+  input[type=text],input[type=password],input[type=number],input[type=email],select,textarea{
+    width:100%;min-height:46px;padding:12px 14px;border-radius:var(--r);
+    border:1px solid var(--line-2);background:var(--bg-2);color:var(--txt);
+    font-size:.92rem;font-weight:500;transition:all var(--t)}
+  input::placeholder{color:var(--mut);opacity:.7}
+  input:hover,select:hover{background:var(--bg-3)}
+  input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px var(--pri-soft)}
+  select{appearance:none;cursor:pointer;padding-right:38px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B8BA0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 13px center}
+  [data-theme="light"] select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6486' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>")}
+  select option{background:var(--card);color:var(--txt)}
+  input[type=file]{padding:11px 14px;font-size:.82rem;color:var(--mut);cursor:pointer}
+  input[type=file]::file-selector-button{
+    margin-right:12px;padding:7px 14px;border-radius:var(--r-full);cursor:pointer;
+    background:var(--pri-soft);border:1px solid color-mix(in srgb,var(--pri) 30%,transparent);
+    color:var(--pri);font-family:var(--font);font-size:.78rem;font-weight:700}
+  input[type=file]::file-selector-button:hover{background:var(--pri);color:#fff}
+
+  .btn{
+    position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;min-height:48px;padding:13px 18px;border-radius:var(--r-full);
+    font-size:.9rem;font-weight:700;letter-spacing:-.01em;
+    border:1px solid var(--pri);background:var(--brand-grad);color:#fff;
+    transition:all var(--t);white-space:nowrap}
+  .btn::after{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:linear-gradient(180deg,rgba(255,255,255,.2),transparent 55%);pointer-events:none}
+  .btn svg{width:17px;height:17px;flex:none}
+  .btn:hover:not([disabled]):not(.busy){transform:translateY(-2px);box-shadow:0 14px 34px -12px rgba(124,107,255,.7)}
+  .btn.ghost{background:var(--card);color:var(--txt);border-color:var(--line-2)}
+  .btn.ghost::after{display:none}
+  .btn.ghost:hover{border-color:var(--pri);background:var(--card-2)}
+  .btn.soft{background:var(--card-2);border-color:var(--line-2);color:var(--txt)}
+  .btn.soft::after{display:none}
+  .btn.soft:hover{background:var(--card-3);border-color:var(--pri)}
+  .btn.danger{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad)}
+  .btn.danger::after{display:none}
+  .btn.danger:hover{background:var(--bad);color:#fff;box-shadow:0 14px 34px -14px var(--bad)}
+  .btn.mini{width:auto;min-height:36px;padding:7px 14px;font-size:.78rem}
+  .btn[disabled],.btn.busy{opacity:.6;pointer-events:none}
+  .btn.busy{color:transparent}
+  .btn.busy::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
+  .row{display:flex;gap:9px;flex-wrap:wrap}
+  .row>*{flex:1 1 130px}
+
+  .check{display:flex;align-items:center;gap:11px;margin:8px 0 4px;color:var(--txt);
+    font-size:.88rem;font-weight:600;cursor:pointer;min-height:42px}
+  .check input{width:21px;height:21px;min-height:0;accent-color:var(--pri);flex:none;cursor:pointer}
+
+  .seg{display:flex;gap:4px;padding:5px;border-radius:var(--r-full);background:var(--bg-2);
+    border:1px solid var(--line);margin-bottom:12px}
+  .seg button{flex:1;min-height:38px;border-radius:var(--r-full);background:transparent;
+    color:var(--mut);font-size:.82rem;font-weight:700;transition:all var(--t)}
+  .seg button:hover{color:var(--txt)}
+  .seg button.on{background:var(--brand-grad);color:#fff;box-shadow:0 5px 16px -8px rgba(124,107,255,.8)}
+
+  /* ============================================================
+     STATUS / PROGRESS / LOG
+     ============================================================ */
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;
+    padding:5px 12px;border-radius:var(--r-full);background:var(--card-2);color:var(--mut);
+    border:1px solid var(--line)}
+  .pill.ok{background:var(--ok-soft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+  .pill.warn{background:var(--warn-soft);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+  .pill.bad{background:var(--bad-soft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+  .pill.run{background:var(--pri-soft);color:var(--pri);border-color:color-mix(in srgb,var(--pri) 40%,transparent)}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+  .pill.run .dot{animation:pulse 1.1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+
+  .prog{height:7px;border-radius:var(--r-full);background:var(--bg-3);overflow:hidden;margin-top:11px;
+    border:1px solid var(--line)}
+  .prog i{display:block;height:100%;width:34%;background:var(--brand-grad);border-radius:var(--r-full);
+    animation:slide 1.5s ease-in-out infinite}
+  @keyframes slide{0%{transform:translateX(-105%)}100%{transform:translateX(340%)}}
+
+  .log{margin-top:11px;background:var(--log-bg);border:1px solid var(--line);border-radius:var(--r);
+    padding:13px 15px;font-family:var(--mono);font-size:.7rem;line-height:1.7;
+    color:#B7C4E4;max-height:250px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+    -webkit-overflow-scrolling:touch}
+  .log::-webkit-scrollbar{width:9px;height:9px}
+  .log::-webkit-scrollbar-thumb{background:var(--card-3);border-radius:var(--r-full);border:2px solid var(--log-bg)}
+  .log::-webkit-scrollbar-track{background:transparent}
+
+  /* ============================================================
+     JOB CARDS
+     ============================================================ */
+  .job{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:15px 16px;margin-bottom:11px;box-shadow:var(--shadow-1);
+    transition:all var(--t);overflow:hidden}
+  .job::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pri)}
+  .job.remote::before{background:var(--acc)}
+  .job.new::before{background:var(--ok)}
+  .job:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--shadow-2)}
+  .job-top{display:flex;align-items:flex-start;gap:12px}
+  .avatar{
+    display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;
+    font-size:.9rem;font-weight:800;letter-spacing:-.02em;color:#fff;
+    text-transform:uppercase;box-shadow:var(--shadow-1)}
+  .job-main{flex:1;min-width:0}
+  .job h4{font-size:.97rem;font-weight:800;line-height:1.32;letter-spacing:-.015em}
+  .meta{color:var(--mut);font-size:.78rem;margin-top:3px;font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .score{
+    flex:none;text-align:center;padding:5px 10px;border-radius:var(--r);
+    background:var(--pri-soft);border:1px solid color-mix(in srgb,var(--pri) 28%,transparent);min-width:56px}
+  .score b{display:block;font-size:1.02rem;font-weight:800;color:var(--pri);line-height:1.1}
+  .score span{display:block;font-size:.6rem;font-weight:700;color:var(--mut);
+    letter-spacing:.08em;text-transform:uppercase}
+  .desc{color:var(--mut);font-size:.81rem;margin-top:9px;line-height:1.6;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:11px}
+  .tag{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:var(--r-full);
+    background:var(--card-2);color:var(--mut);border:1px solid var(--line)}
+  .tag.score{background:var(--pri-soft);color:var(--pri);border-color:color-mix(in srgb,var(--pri) 30%,transparent)}
+  .tag.ok{background:var(--ok-soft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 32%,transparent)}
+  .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .acts a,.acts button{
+    flex:1 1 130px;text-align:center;min-height:42px;display:inline-flex;align-items:center;
+    justify-content:center;gap:7px;border-radius:var(--r-full);font-size:.82rem;font-weight:700;
+    text-decoration:none;border:1px solid var(--line-2);background:var(--card-2);color:var(--txt);
+    transition:all var(--t)}
+  .acts a:hover{background:var(--card-3);border-color:var(--line-2);transform:translateY(-1px)}
+  .acts a.go{background:var(--brand-grad);border-color:transparent;color:#fff}
+  .acts a.go:hover{box-shadow:0 12px 28px -12px rgba(124,107,255,.8)}
+  .acts a.dl{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 35%,transparent);color:var(--ok)}
+  .acts a.dl:hover{background:var(--ok);color:#fff}
+  .acts svg{width:15px;height:15px;flex:none}
+
+  /* ============================================================
+     EMPTY STATES (illustrated)
+     ============================================================ */
+  .empty{
+    text-align:center;padding:38px 20px;color:var(--mut);font-size:.86rem;
+    border:1px dashed var(--line-2);border-radius:var(--r-lg);background:var(--card)}
+  .empty svg{width:132px;height:104px;margin:0 auto 14px}
+  .empty b{display:block;color:var(--txt);font-size:.95rem;font-weight:800;
+    letter-spacing:-.015em;margin-bottom:5px}
+  .empty span{display:block;max-width:34em;margin-inline:auto;line-height:1.6;font-weight:500}
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  table{width:100%;border-collapse:collapse;font-size:.83rem}
+  th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--card-2)}
+  td select{min-height:38px;padding:7px 32px 7px 11px;font-size:.78rem;font-weight:700;
+    background-position:right 10px center}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  .warnbox{
+    display:flex;gap:11px;align-items:flex-start;border-radius:var(--r-lg);padding:14px 16px;
+    border:1px solid color-mix(in srgb,var(--warn) 38%,transparent);
+    background:var(--warn-soft);color:var(--warn);font-size:.81rem;font-weight:600;
+    line-height:1.6;margin-bottom:14px}
+  .warnbox svg{width:18px;height:18px;flex:none;margin-top:2px}
+  [data-theme="dark"] .warnbox{color:#FFD79A}
+
+  .hidden{display:none!important}
+
+  /* ============================================================
+     AUTH OVERLAY
+     ============================================================ */
+  #auth{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+    padding:18px;overflow-y:auto;
+    background:color-mix(in srgb,var(--bg) 82%,transparent);
+    backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%)}
+  #auth .box{
+    width:min(96vw,404px);padding:28px;border-radius:var(--r-xl);
+    background:var(--card);border:1px solid var(--line-2);box-shadow:var(--shadow-3);
+    animation:pop .3s var(--t)}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  #auth .box-brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px}
+  #auth h3{font-size:1.24rem;font-weight:800;letter-spacing:-.025em;text-align:center}
+  #auth p{color:var(--mut);font-size:.85rem;margin:6px 0 18px;text-align:center;line-height:1.6}
+  #auth .err{color:var(--bad);font-size:.78rem;font-weight:700;margin-top:11px;
+    min-height:18px;text-align:center}
+  #auth-customer #customer-signup select{background-position:right 13px center}
+  #auth-art{display:flex;justify-content:center;margin-bottom:18px}
+  #auth-art svg{width:158px;height:118px}
+
+  /* ============================================================
+     TOAST
+     ============================================================ */
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translate(-50%,150%);z-index:100;
+    padding:12px 20px;border-radius:var(--r-full);background:var(--card);
+    border:1px solid var(--line-2);box-shadow:var(--shadow-3);font-size:.84rem;font-weight:600;
+    transition:transform .32s var(--t);max-width:92vw}
+  .toast.show{transform:translate(-50%,0)}
+  .toast.ok{border-color:color-mix(in srgb,var(--ok) 45%,transparent);color:var(--ok)}
+  .toast.err{border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad)}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width:720px){
+    main{padding-top:16px}
+    .panel{padding:17px;border-radius:var(--r)}
+    .theme-toggle #theme-text{display:none}
+    .theme-toggle{padding:0 10px}
+    #cust-select{min-width:120px;max-width:150px}
+    .job-top{gap:10px}
+    .avatar{width:38px;height:38px;border-radius:11px;font-size:.82rem}
+    .score{min-width:50px;padding:4px 8px}
+    .score b{font-size:.94rem}
+    nav button{min-width:78px;font-size:.78rem}
+  }
+  @media (max-width:420px){
+    .score{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+      transition-duration:.01ms!important}
+  }
+
+  /* ============================================================
+     ART TOKENS
+     ============================================================ */
+  .art .card{fill:var(--card);stroke:var(--line-2)}
+  .art .soft{fill:var(--card-2)}
+  .art .pri{fill:var(--pri)}
+  .art .pri-s{fill:var(--pri-soft)}
+  .art .acc{fill:var(--acc)}
+  .art .ok{fill:var(--ok)}
+  .art .warn{fill:var(--warn)}
+  .art .skin{fill:#E9A87C}
+  .art .skin-d{fill:#C9835A}
+  .art .hair{fill:#241C15}
+  .art .shirt{fill:var(--pri)}
+  .art .stroke-d{stroke:#241C15;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .art .stroke-w{stroke:#fff;fill:none;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="aura" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════ AUTH GATE ══════════════════════════════ -->
+<div id="auth">
+  <div class="box">
+    <div class="box-brand">
+      <svg viewBox="0 0 40 40" width="32" height="32" aria-hidden="true" style="filter:drop-shadow(0 3px 10px rgba(124,107,255,.5))">
+        <defs>
+          <linearGradient id="bm" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7C6BFF"/><stop offset="55%" stop-color="#9B6BFF"/>
+            <stop offset="100%" stop-color="#FF6B4A"/>
+          </linearGradient>
+        </defs>
+        <rect width="40" height="40" rx="12" fill="url(#bm)"/>
+        <path d="M13 17.5h14a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-2.5 2.5H13A2.5 2.5 0 0 1 10.5 28v-8A2.5 2.5 0 0 1 13 17.5Z" fill="#fff" opacity=".95"/>
+        <path d="M16 17.5v-2.2A2.3 2.3 0 0 1 18.3 13h3.4a2.3 2.3 0 0 1 2.3 2.3v2.2" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>
+        <path d="M20 21.2l1.25 2.55 2.8.4-2.03 1.97.48 2.78L20 27.6l-2.5 1.3.48-2.78L15.95 24.15l2.8-.4L20 21.2Z" fill="#7C6BFF"/>
+      </svg>
+      <span class="brand-name">Job<em>Match</em></span>
+    </div>
+
+    <div class="seg" style="margin-bottom:20px">
+      <button data-mode="admin" class="on" onclick="setAuthMode('admin')">Admin</button>
+      <button data-mode="customer" onclick="setAuthMode('customer')">Customer</button>
+    </div>
+
+    <!-- Admin mode -->
+    <div id="auth-admin">
+      <div id="auth-art">
+        <svg class="art" viewBox="0 0 190 140" role="img" aria-label="A locked dashboard waiting for a password">
+          <ellipse cx="95" cy="126" rx="60" ry="9" fill="var(--pri-soft)"/>
+          <circle cx="95" cy="56" r="30" fill="var(--pri-soft)"/>
+          <path d="M95 40c-9 0-16 7-16 16v6h-4a6 6 0 0 0-6 6v22a6 6 0 0 0 6 6h40a6 6 0 0 0 6-6V68a6 6 0 0 0-6-6h-4v-6c0-9-7-16-16-16Z" fill="var(--pri)"/>
+          <path d="M87 56c0-5 3.6-9 8-9s8 4 8 9v6H87v-6Z" fill="#fff" opacity=".35"/>
+          <circle cx="95" cy="76" r="6.5" fill="#fff"/>
+          <rect x="92" y="79" width="6" height="11" rx="3" fill="#fff"/>
+          <circle cx="30" cy="34" r="4" class="pri" opacity=".6"/>
+          <circle cx="164" cy="46" r="5" fill="var(--acc)" opacity=".7"/>
+          <path d="M146 22l2.6 5.4 5.4 2.6-5.4 2.6L146 38l-2.6-5.4L138 30l5.4-2.6L146 22Z" fill="var(--acc)"/>
+          <path d="M40 70l2 4.2 4.2 2-4.2 2L40 82.4 38 78.2l4.2-2L40 70Z" class="pri"/>
+        </svg>
+      </div>
+      <h3 id="auth-title">Locked</h3>
+      <p id="auth-sub">Enter the admin password to continue.</p>
+      <input type="password" id="auth-pass" placeholder="Admin password" autocomplete="current-password">
+      <button class="btn" style="margin-top:14px" onclick="doAuth()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 4.5 6v6.2c0 4.6 3.1 8.4 7.5 9.4 4.4-1 7.5-4.8 7.5-9.4V6L12 2.8Z"/></svg>
+        Unlock dashboard
+      </button>
+      <div class="err" id="auth-err"></div>
+    </div>
+
+    <!-- Customer mode -->
+    <div id="auth-customer" class="hidden">
+      <div class="seg" style="margin-bottom:20px">
+        <button data-tab="login" class="on" onclick="setCustomerTab('login')">Sign in</button>
+        <button data-tab="signup" onclick="setCustomerTab('signup')">Sign up</button>
+      </div>
+
+      <div id="customer-login">
+        <h3>Welcome back</h3>
+        <p>Sign in to access your tailored applications</p>
+        <label for="cust-email" style="text-align:left">Email</label>
+        <input type="email" id="cust-email" placeholder="you@example.com" autocomplete="email">
+        <label for="cust-pass" style="text-align:left">Password</label>
+        <input type="password" id="cust-pass" placeholder="Password" autocomplete="current-password">
+        <button class="btn" style="margin-top:14px" onclick="customerLogin()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
+          Sign in
+        </button>
+        <div class="err" id="cust-err"></div>
+      </div>
+
+      <div id="customer-signup" class="hidden">
+        <h3>Create your account</h3>
+        <p>Get a tailored CV for every application</p>
+        <label for="cust-name" style="text-align:left">Name</label>
+        <input type="text" id="cust-name" placeholder="Your name" autocomplete="name">
+        <label for="cust-signup-email" style="text-align:left">Email</label>
+        <input type="email" id="cust-signup-email" placeholder="you@example.com" autocomplete="email">
+        <label for="cust-signup-pass" style="text-align:left">Password <span style="color:var(--mut);font-weight:600">(min 8 chars)</span></label>
+        <input type="password" id="cust-signup-pass" placeholder="Create a password" autocomplete="new-password">
+        <label for="cust-keys" style="text-align:left">Target job keywords</label>
+        <input type="text" id="cust-keys" placeholder="e.g. customer service, virtual assistant" autocomplete="off">
+        <label for="cust-loc" style="text-align:left">Where</label>
+        <select id="cust-loc">
+          <option value="remote">Remote (anywhere)</option>
+          <option value="nigerian">Nigeria</option>
+          <option value="lagos">Lagos</option>
+          <option value="uyo">Uyo</option>
+          <option value="abuja">Abuja</option>
+          <option value="">Anywhere</option>
+        </select>
+        <button class="btn" style="margin-top:14px" onclick="customerSignup()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>
+          Create account
+        </button>
+        <div class="err" id="cust-signup-err"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ HEADER ══════════════════════════════ -->
+<header>
+  <div class="top">
+    <div class="brand-block">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <defs>
+            <linearGradient id="bmh" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7C6BFF"/><stop offset="55%" stop-color="#9B6BFF"/>
+              <stop offset="100%" stop-color="#FF6B4A"/>
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="12" fill="url(#bmh)"/>
+          <path d="M13 17.5h14a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-2.5 2.5H13A2.5 2.5 0 0 1 10.5 28v-8A2.5 2.5 0 0 1 13 17.5Z" fill="#fff" opacity=".95"/>
+          <path d="M16 17.5v-2.2A2.3 2.3 0 0 1 18.3 13h3.4a2.3 2.3 0 0 1 2.3 2.3v2.2" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 21.2l1.25 2.55 2.8.4-2.03 1.97.48 2.78L20 27.6l-2.5 1.3.48-2.78L15.95 24.15l2.8-.4L20 21.2Z" fill="#7C6BFF"/>
+        </svg>
+        <span class="brand-name">Job<em>Match</em></span>
+      </div>
+      <div class="sub" id="sub">connecting&hellip;</div>
+    </div>
+
+    <!-- Customer info (customer mode) -->
+    <div id="cust-info" class="hidden" style="display:flex;align-items:center;gap:9px;flex:none">
+      <span id="cust-name-display"></span>
+      <button class="btn ghost mini" style="padding:6px 12px;font-size:.76rem" onclick="customerLogout()">Sign Out</button>
+    </div>
+
+    <!-- Customer switcher (admin users) -->
+    <div id="cust-switcher" class="hidden" style="position:relative">
+      <select id="cust-select">
+        <option value="">Select customer&hellip;</option>
+      </select>
+    </div>
+
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Switch colour theme">
+      <span class="ti" id="theme-icon" aria-hidden="true">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.22 4.22l1.7 1.7M18.08 18.08l1.7 1.7M2 12h2.4M19.6 12H22M4.22 19.78l1.7-1.7M18.08 5.92l1.7-1.7"/></svg>
+      </span>
+      <span id="theme-text">Dark</span>
+    </button>
+
+    <button class="lock" id="lock" onclick="logout()" title="Lock and log out" aria-label="Log out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+    </button>
+  </div>
+
+  <nav>
+    <button id="tab-find" class="on" onclick="tab('find')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>
+      Find Work</button>
+    <button id="tab-jobs" onclick="tab('jobs')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="13" rx="3"/><path d="M8.5 7V5.5A2 2 0 0 1 10.5 3.5h3a2 2 0 0 1 2 2V7"/></svg>
+      Jobs</button>
+    <button id="tab-track" onclick="tab('track')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5h11l5 5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19V4.5Z"/><path d="M14.5 4.5V10H20"/><path d="M8 14h8M8 17h5"/></svg>
+      Tracker</button>
+    <button id="tab-mail" onclick="tab('mail')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M3 7l9 6 9-6"/></svg>
+      Emails</button>
+    <button id="tab-billing" onclick="tab('billing')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/></svg>
+      Billing</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ══════════════════════════════ FIND WORK ══════════════════════════════ -->
+  <section id="v-find">
+    <div class="sec-head">
+      <div>
+        <h2>Tailored applications</h2>
+        <p class="lead">Set who the job is for, add their CV, and the system finds matching
+           jobs and rewrites the CV for each one.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="step">1</span> Who is the job for?</h3>
+      <p class="hint">Name is optional. Keywords decide what gets matched.</p>
+      <label for="f-name">Name</label>
+      <input type="text" id="f-name" placeholder="e.g. Precious Sylvester" autocomplete="off">
+      <label for="f-keys">Target job keywords</label>
+      <input type="text" id="f-keys" placeholder="e.g. customer service, virtual assistant" autocomplete="off">
+      <label for="f-loc">Where</label>
+      <select id="f-loc">
+        <option value="remote">Remote (anywhere)</option>
+        <option value="nigerian">Nigeria</option>
+        <option value="lagos">Lagos</option>
+        <option value="uyo">Uyo</option>
+        <option value="abuja">Abuja</option>
+        <option value="">Anywhere</option>
+      </select>
+      <div style="height:12px"></div>
+      <button class="btn soft" onclick="saveProfile()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Save details
+      </button>
+      <div class="hint" id="f-saved" style="margin:10px 0 0"></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="step">2</span> Their CV</h3>
+      <p class="hint">PDF, Word or text. A scrambled PDF is cleaned up automatically
+         before anything is written from it.</p>
+      <input type="file" id="f-file" accept=".txt,.pdf,.doc,.docx,.md">
+      <div style="height:12px"></div>
+      <button class="btn soft" onclick="uploadCv()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7.5 8.5 12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        Upload CV
+      </button>
+      <div style="margin-top:11px" id="f-cv"></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="step">3</span> Find jobs &amp; tailor the CV</h3>
+      <p class="hint">Scans 13 job sites (about 3 minutes), then writes a custom CV
+         and cover letter for each top match.</p>
+      <div class="seg" id="f-top">
+        <button data-top="3" onclick="setTop(3)">Top 3</button>
+        <button data-top="5" class="on" onclick="setTop(5)">Top 5</button>
+        <button data-top="8" onclick="setTop(8)">Top 8</button>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="f-cover">
+        Also write a cover letter
+      </label>
+      <label for="f-pin">Send PIN <span style="color:var(--mut);font-weight:600">(stops unauthorised AI costs)</span></label>
+      <input type="password" id="f-pin" placeholder="6-digit PIN" autocomplete="off">
+      <div style="height:14px"></div>
+      <button class="btn" id="btn-find" onclick="runFind()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>
+        Find jobs and tailor CVs
+      </button>
+      <div style="margin-top:14px" id="f-status"></div>
+    </div>
+
+    <div id="f-results"></div>
+  </section>
+
+  <!-- ══════════════════════════════ JOBS ══════════════════════════════ -->
+  <section id="v-jobs" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h2>Scanned jobs</h2>
+        <p class="lead" id="jobs-sum">&mdash;</p>
+      </div>
+    </div>
+    <div class="panel">
+      <button class="btn" id="btn-scan" onclick="act('scan', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-5 3 10 2.5-7 1.5 2H21"/></svg>
+        Scan job sites now
+      </button>
+      <div style="height:9px"></div>
+      <div class="row">
+        <button class="btn soft" onclick="act('crawl', this)">Crawl career pages</button>
+        <button class="btn soft" onclick="act('import', this)">Import to tracker</button>
+      </div>
+      <p class="hint" style="margin:12px 0 0">Scan checks all 13 sources. Crawl adds
+         openings from company career pages. Import copies new jobs into the tracker.</p>
+      <div id="jobs-status"></div>
+    </div>
+    <div class="seg" id="f-filter">
+      <button data-f="all" class="on" onclick="setFilter('all')">All</button>
+      <button data-f="remote_global" onclick="setFilter('remote_global')">Remote</button>
+      <button data-f="nigerian_onsite" onclick="setFilter('nigerian_onsite')">Nigeria</button>
+      <button data-f="new" onclick="setFilter('new')">New</button>
+    </div>
+    <input type="text" id="q" placeholder="Search title or company" oninput="renderJobs()">
+    <div style="height:13px"></div>
+    <div id="jobs-list"></div>
+  </section>
+
+  <!-- ══════════════════════════════ TRACKER ══════════════════════════════ -->
+  <section id="v-track" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h2>Application tracker</h2>
+        <p class="lead">Where each application got to. Change a status to save it.</p>
+      </div>
+    </div>
+    <div id="track-list"></div>
+  </section>
+
+  <!-- ══════════════════════════════ EMAILS ══════════════════════════════ -->
+  <section id="v-mail" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h2>Application emails</h2>
+        <p class="lead">Personal toolkit — the JobMatch product does not send anything.</p>
+      </div>
+    </div>
+    <div class="warnbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+      <span>These send real email from your Gmail account. Everything else in JobMatch
+        only reads and writes local files.</span>
+    </div>
+    <div class="panel">
+      <h3><span class="step">1</span> Find addresses to write to</h3>
+      <p class="hint">Reads the tracker, collects recruiter emails, writes drafts.</p>
+      <button class="btn soft" onclick="act('extract', this)">Collect emails</button>
+    </div>
+    <div class="panel">
+      <h3><span class="step">2</span> Preview</h3>
+      <button class="btn soft" onclick="previewEmails()">Dry run (sends nothing)</button>
+    </div>
+    <div class="panel">
+      <h3><span class="step">3</span> Send</h3>
+      <label for="m-pin">Send PIN</label>
+      <input type="password" id="m-pin" placeholder="6-digit PIN" autocomplete="off">
+      <label for="m-limit">How many (blank = all staged)</label>
+      <input type="number" id="m-limit" placeholder="e.g. 5" min="1">
+      <div style="height:14px"></div>
+      <button class="btn danger" id="btn-send" onclick="sendEmails()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2.5 11 13"/><path d="M21.5 2.5 15 21l-4-8-8-4 18.5-6.5Z"/></svg>
+        Send emails
+      </button>
+      <div id="mail-status"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ BILLING ══════════════════════════════ -->
+  <section id="v-billing" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h2>Billing &amp; subscription</h2>
+        <p class="lead" id="billing-sum">&mdash;</p>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Current plan</h3>
+      <div id="billing-plan" class="hint">Loading&hellip;</div>
+      <div style="height:14px"></div>
+      <button class="btn" id="btn-checkout" onclick="startCheckout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3.5L21 6.5"/><path d="M15 6.5h6v6"/></svg>
+        Upgrade to &#8358;1,500/mo
+      </button>
+    </div>
+    <div class="panel">
+      <h3>Usage this month</h3>
+      <div class="table-wrap">
+        <table id="usage-table">
+          <thead><tr><th>Resource</th><th>Used</th><th>Limit</th><th>Remaining</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+let S = null, CUST = null, filter = 'all', topN = 5;
+let pollTimer = null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* ---------------- illustrated empty states ---------------- */
+const ART = {
+  jobs: '<svg class="art" viewBox="0 0 160 126" aria-hidden="true">'
+    + '<ellipse cx="80" cy="112" rx="52" ry="8" fill="var(--pri-soft)"/>'
+    + '<rect x="30" y="26" width="72" height="60" rx="9" fill="var(--card-3)"/>'
+    + '<rect x="38" y="36" width="40" height="5" rx="2.5" class="pri"/>'
+    + '<rect x="38" y="47" width="54" height="4" rx="2" fill="var(--mut)" opacity=".4"/>'
+    + '<rect x="38" y="56" width="44" height="4" rx="2" fill="var(--mut)" opacity=".3"/>'
+    + '<rect x="38" y="68" width="26" height="9" rx="4.5" class="pri" opacity=".55"/>'
+    + '<circle cx="108" cy="56" r="26" fill="var(--pri-soft)"/>'
+    + '<circle cx="108" cy="56" r="15" fill="none" stroke="var(--pri)" stroke-width="3.6"/>'
+    + '<path d="M119 67l12 12" stroke="var(--pri)" stroke-width="4.6" stroke-linecap="round"/>'
+    + '<path d="M34 8l2 4.2 4.2 2-4.2 2L34 20.4 32 16.2l-4.2-2 4.2-2L34 8Z" class="acc"/>'
+    + '<circle cx="132" cy="24" r="4" class="acc" opacity=".7"/></svg>',
+  results: '<svg class="art" viewBox="0 0 160 126" aria-hidden="true">'
+    + '<ellipse cx="80" cy="113" rx="50" ry="8" fill="var(--acc-soft)"/>'
+    + '<rect x="42" y="16" width="60" height="82" rx="10" fill="var(--card-3)"/>'
+    + '<rect x="52" y="30" width="34" height="6" rx="3" class="pri"/>'
+    + '<rect x="52" y="44" width="40" height="4.5" rx="2.2" fill="var(--mut)" opacity=".4"/>'
+    + '<rect x="52" y="54" width="34" height="4.5" rx="2.2" fill="var(--mut)" opacity=".3"/>'
+    + '<rect x="52" y="64" width="38" height="4.5" rx="2.2" fill="var(--mut)" opacity=".24"/>'
+    + '<rect x="52" y="78" width="24" height="11" rx="5.5" fill="var(--pri-soft)"/>'
+    + '<circle cx="110" cy="86" r="20" fill="var(--acc)"/>'
+    + '<path d="M101 86.5l6.5 6.5L120 80" class="stroke-w" stroke-width="4"/>'
+    + '<path d="M124 30l2.4 5 5 2.4-5 2.4L124 45l-2.4-5-5-2.4 5-2.4L124 30Z" class="pri"/>'
+    + '<circle cx="30" cy="72" r="4" class="pri" opacity=".55"/></svg>',
+  tracker: '<svg class="art" viewBox="0 0 160 126" aria-hidden="true">'
+    + '<ellipse cx="80" cy="113" rx="50" ry="8" fill="var(--ok-soft)"/>'
+    + '<rect x="36" y="20" width="88" height="76" rx="12" fill="var(--card-3)"/>'
+    + '<rect x="46" y="30" width="34" height="6" rx="3" class="pri"/>'
+    + '<rect x="46" y="46" width="62" height="5" rx="2.5" fill="var(--mut)" opacity=".35"/>'
+    + '<rect x="46" y="58" width="62" height="5" rx="2.5" fill="var(--mut)" opacity=".28"/>'
+    + '<rect x="46" y="70" width="62" height="5" rx="2.5" fill="var(--mut)" opacity=".22"/>'
+    + '<circle cx="112" cy="30" r="13" fill="var(--ok)"/>'
+    + '<path d="M106 30.5l4 4 8-9" class="stroke-w" stroke-width="3"/>'
+    + '<path d="M118 70l2.4 5 5 2.4-5 2.4L118 85l-2.4-5-5-2.4 5-2.4L118 70Z" class="acc"/>'
+    + '<circle cx="30" cy="46" r="4" class="acc" opacity=".7"/></svg>'
+};
+
+function emptyBox(art, title, sub){
+  const box = document.createElement('div');
+  box.className = 'empty';
+  box.innerHTML = art + '<b>' + esc(title) + '</b><span>' + esc(sub) + '</span>';
+  return box;
+}
+
+/* deterministic avatar colour + initials from a company name */
+const AV_COLORS = [
+  ['#7C6BFF','#5B48F5'], ['#FF6B4A','#E8502C'], ['#2ED3A0','#0EA97C'],
+  ['#F5A524','#C97A08'], ['#FF5A8A','#D62E63'], ['#38BDF8','#0284C7'],
+  ['#A78BFA','#7C4DE0'], ['#FB923C','#E0620B']
+];
+function avatarFor(name){
+  const s = String(name || '?').trim();
+  const initials = (s ? s.split(/[\s\-_.,&]+/).filter(Boolean) : [])
+    .slice(0, 2).map(w => w[0]).join('') || '?';
+  let h = 0;
+  for(let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const pair = AV_COLORS[h % AV_COLORS.length];
+  return {initials: initials.toUpperCase(), grad: 'linear-gradient(135deg,' + pair[0] + ',' + pair[1] + ')'};
+}
+
+const ICON_EXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>';
+const ICON_DL  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M4 18v1.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V18"/></svg>';
+
+/* ---------------- auth ---------------- */
+let authMode = 'admin'; // 'admin' or 'customer'
+let customerTab = 'login'; // 'login' or 'signup'
+
+async function checkAuth(){
+  try{
+    const a = await (await fetch('/api/auth_state')).json();
+    if(!a.authed){ showAuth(a.setup ? 'setup' : 'login'); return false; }
+    $('auth').classList.add('hidden');
+    return true;
+  }catch(e){ showAuth('login'); return false; }
+}
+function showAuth(mode){
+  $('auth').classList.remove('hidden');
+  const setup = mode === 'setup';
+  $('auth-title').textContent = setup ? 'First-time setup' : 'Locked';
+  $('auth-sub').textContent = setup
+    ? 'Create the admin password for this dashboard (min 6 characters).'
+    : 'Enter the admin password to continue.';
+  $('auth-pass').placeholder = setup ? 'New password' : 'Admin password';
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.querySelectorAll('#auth .seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  $('auth-admin').classList.toggle('hidden', mode !== 'admin');
+  $('auth-customer').classList.toggle('hidden', mode !== 'customer');
+  if (mode === 'customer') {
+    setCustomerTab('login');
+  }
+}
+
+function setCustomerTab(tab) {
+  customerTab = tab;
+  document.querySelectorAll('#auth-customer .seg button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('customer-login').classList.toggle('hidden', tab !== 'login');
+  $('customer-signup').classList.toggle('hidden', tab !== 'signup');
+  $('cust-err').textContent = '';
+  $('cust-signup-err').textContent = '';
+}
+
+async function doAuth(){
+  const p = $('auth-pass').value.trim();
+  if(!p){ $('auth-err').textContent = 'Enter a password.'; return; }
+  const setup = $('auth-title').textContent === 'First-time setup';
+  const res = await fetch(setup ? '/api/status_setup' : '/api/login',
+    {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:p})});
+  const r = await res.json().catch(()=>({}));
+  if(res.ok){ $('auth-pass').value=''; $('auth-err').textContent=''; $('auth').classList.add('hidden'); await refresh(); }
+  else $('auth-err').textContent = r.error || 'Wrong password.';
+}
+
+async function customerLogin(){
+  const email = $('cust-email').value.trim().toLowerCase();
+  const password = $('cust-pass').value;
+  if(!email || !password){ $('cust-err').textContent = 'Email and password required.'; return; }
+  const res = await fetch('/auth/login', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password})
+  });
+  const r = await res.json().catch(()=>({}));
+  if(res.ok && r.ok){
+    $('cust-email').value = ''; $('cust-pass').value = ''; $('cust-err').textContent = '';
+    $('auth').classList.add('hidden');
+    await refresh();
+  }else{
+    $('cust-err').textContent = r.error || 'Invalid credentials.';
+  }
+}
+
+async function customerSignup(){
+  const name = $('cust-name').value.trim();
+  const email = $('cust-signup-email').value.trim().toLowerCase();
+  const password = $('cust-signup-pass').value;
+  const keywords = $('cust-keys').value.trim();
+  const location = $('cust-loc').value;
+  if(!name || !email || !password || !keywords){
+    $('cust-signup-err').textContent = 'All fields required (including keywords).';
+    return;
+  }
+  if(password.length < 8){
+    $('cust-signup-err').textContent = 'Password must be at least 8 characters.';
+    return;
+  }
+  const res = await fetch('/auth/public_signup', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name, email, password, keywords, location})
+  });
+  const r = await res.json().catch(()=>({}));
+  if(res.ok && r.ok){
+    $('cust-name').value = ''; $('cust-signup-email').value = ''; $('cust-signup-pass').value = ''; $('cust-keys').value = '';
+    $('cust-signup-err').textContent = '';
+    $('auth').classList.add('hidden');
+    await refresh();
+  }else{
+    $('cust-signup-err').textContent = r.error || 'Signup failed.';
+  }
+}
+
+async function logout(){
+  if(currentUser?.type === 'customer'){
+    await fetch('/auth/logout', {method:'POST'});
+  }else{
+    await fetch('/api/logout', {method:'POST'});
+  }
+  location.reload();
+}
+
+async function customerLogout(){
+  await fetch('/auth/logout', {method:'POST'});
+  location.reload();
+}
+
+/* ---------------- nav ---------------- */
+function tab(name){
+  ['find','jobs','track','mail','billing'].forEach(t=>{
+    $('v-'+t).classList.toggle('hidden', t !== name);
+    $('tab-'+t).classList.toggle('on', t === name);
+  });
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+/* ---------------- theme management ---------------- */
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeUI(saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeUI(next);
+}
+
+function updateThemeUI(theme) {
+  const text = $('theme-text');
+  if (text) text.textContent = theme === 'dark' ? 'Dark' : 'Light';
+}
+
+/* ---------------- customer switcher (admin only) ---------------- */
+async function loadCustomerSwitcher(){
+  try{
+    const res = await fetch('/api/customers');
+    if(!res.ok) return;
+    const data = await res.json();
+    const sel = $('cust-select');
+    const wrap = $('cust-switcher');
+    if(!sel || !wrap) return;
+    if(!data.customers || data.customers.length <= 1){
+      wrap.classList.add('hidden');
+      return;
+    }
+    const currentCustId = (await (await fetch('/api/me')).json()).customer?.id;
+    sel.innerHTML = '<option value="">Select customer...</option>';
+    data.customers.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name + (c.email ? ' (' + c.email + ')' : '');
+      if(c.id === currentCustId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = async () => {
+      const custId = sel.value;
+      if(!custId) return;
+      const res = await fetch('/api/auth/switch', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({customer_id: parseInt(custId, 10)})
+      });
+      const result = await res.json().catch(()=>({}));
+      if(res.ok && result.ok){
+        toast('Switched to customer');
+        await refresh();
+      }else{
+        toast(result.error || 'Switch failed', 'err');
+        // Revert selection
+        const current = await (await fetch('/api/me')).json();
+        if(current.customer) sel.value = current.customer.id;
+      }
+    };
+    wrap.classList.remove('hidden');
+  }catch(e){
+    console.warn('Customer switcher load failed:', e);
+  }
+}
+
+/* ---------------- data ---------------- */
+let currentUser = null; // {type: 'admin'|'customer', customer: {...}}
+
+async function refresh(){
+  // Check admin auth
+  let adminAuthed = false;
+  try{
+    const a = await (await fetch('/api/auth_state')).json();
+    adminAuthed = a.authed;
+  }catch(e){ adminAuthed = false; }
+
+  // Check customer auth
+  let customer = null;
+  try{
+    const me = await (await fetch('/api/me')).json();
+    if(me.ok && me.customer) customer = me.customer;
+  }catch(e){ customer = null; }
+
+  // Determine what to show
+  if(!adminAuthed && !customer){
+    showAuth('login');
+    return;
+  }
+
+  $('auth').classList.add('hidden');
+  currentUser = customer ? {type: 'customer', customer} : {type: 'admin', customer: null};
+
+  // Load state data (jobs, tracker, etc.) - works for both admin and customer
+  try{
+    const res = await fetch('/api/state');
+    if(res.status === 401 && !customer){ showAuth('login'); return; }
+    S = res.ok ? await res.json() : null;
+  }catch(e){ S = null; }
+
+  $('sub').textContent = S
+    ? `Last scan ${S.last_scan} · ${S.total} jobs · ${S.new_count} new`
+    : customer ? 'Customer mode' : 'offline';
+
+  // Show/hide customer info in header
+  if(customer){
+    $('cust-info').classList.remove('hidden');
+    $('cust-name-display').textContent = customer.name || customer.email;
+    $('cust-switcher').classList.add('hidden');
+    $('lock').title = 'Sign out';
+    $('lock').setAttribute('aria-label', 'Sign out');
+  }else{
+    $('cust-info').classList.add('hidden');
+    $('cust-switcher').classList.remove('hidden');
+    $('lock').title = 'Lock and log out';
+    $('lock').setAttribute('aria-label', 'Lock and log out');
+  }
+
+  // Show/hide tabs based on auth type
+  if(customer){
+    // Customer mode: only show Find Work and Billing
+    $('tab-jobs').style.display = 'none';
+    $('tab-track').style.display = 'none';
+    $('tab-mail').style.display = 'none';
+    $('tab-billing').style.display = 'inline-flex';
+    $('tab-find').style.display = 'inline-flex';
+    // Switch to Find Work tab
+    tab('find');
+  }else{
+    // Admin mode: show all tabs
+    ['tab-jobs','tab-track','tab-mail','tab-billing','tab-find'].forEach(id => {
+      $(id).style.display = 'inline-flex';
+    });
+  }
+
+  // Load customer-specific data
+  if(customer){
+    await loadCustomer();
+    await loadBilling();
+  }else{
+    renderJobs(); renderTracker(); renderMail(); await loadCustomer(); await loadCustomerSwitcher(); await loadBilling();
+  }
+}
+
+function jobCard(j, isNew){
+  const el = document.createElement('div');
+  const loc = (j.location || '').toLowerCase();
+  el.className = 'job' + (isNew ? ' new' : (/remote|worldwide|anywhere|global/.test(loc) ? ' remote' : ''));
+
+  const top = document.createElement('div');
+  top.className = 'job-top';
+
+  // company avatar
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  const a = avatarFor(j.company || j.title);
+  av.textContent = a.initials;
+  av.style.background = a.grad;
+  av.setAttribute('aria-hidden', 'true');
+  top.appendChild(av);
+
+  const main = document.createElement('div');
+  main.className = 'job-main';
+  const h = document.createElement('h4');
+  h.textContent = j.title;
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.textContent = [j.company, j.location].filter(Boolean).join(' · ') || '—';
+  main.append(h, meta);
+  top.appendChild(main);
+
+  if(j.score){
+    const sc = document.createElement('div');
+    sc.className = 'score';
+    sc.innerHTML = '<b>' + esc(j.score) + '</b><span>match</span>';
+    top.appendChild(sc);
+  }
+  el.appendChild(top);
+
+  if(j.description){
+    const d = document.createElement('div');
+    d.className = 'desc';
+    d.textContent = j.description;
+    el.appendChild(d);
+  }
+  const tags = document.createElement('div');
+  tags.className = 'tags';
+  if(j.score) tags.appendChild(tag('score', 'match ' + j.score));
+  if(j.source) tags.appendChild(tag('', j.source));
+  if(j.status) tags.appendChild(tag(j.status === 'APPLIED' || j.status === 'EMAILED' ? 'ok' : '',
+                                    j.status));
+  el.appendChild(tags);
+  const acts = document.createElement('div');
+  acts.className = 'acts';
+  if(j.link) acts.appendChild(link(j.link, 'go', 'Open job', ICON_EXT));
+  el.appendChild(acts);
+  return el;
+}
+function tag(cls, text){
+  const s = document.createElement('span');
+  s.className = 'tag' + (cls ? ' ' + cls : '');
+  s.textContent = text;
+  return s;
+}
+function link(href, cls, text, icon){
+  const a = document.createElement('a');
+  a.className = cls; a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  a.innerHTML = (icon || '') + '<span>' + esc(text) + '</span>';
+  return a;
+}
+
+function renderJobs(){
+  const box = $('jobs-list');
+  if(!box) return;
+  box.innerHTML = '';
+  if(!S){ box.appendChild(emptyBox(ART.jobs, 'Not connected yet', 'The dashboard has not reached the server. Give it a moment and it will load on its own.')); return; }
+  $('jobs-sum').textContent = `${S.total} jobs found · ${S.new_count} new since the last scan`;
+  const q = ($('q').value || '').toLowerCase();
+  let list;
+  if(filter === 'new') list = S.new_jobs;
+  else if(filter === 'all') list = S.jobs;
+  else list = S.jobs.filter(j => (j.category || '') === filter);
+  let shown = 0;
+  list.forEach(j => {
+    if(q && !((j.title || '') + ' ' + (j.company || '')).toLowerCase().includes(q)) return;
+    box.appendChild(jobCard(j, filter === 'new' || (S.new_jobs || []).some(n => n.link === j.link)));
+    shown++;
+  });
+  if(!shown) box.appendChild(emptyBox(ART.jobs,
+    q ? 'Nothing matches that search' : 'Nothing here yet',
+    q ? 'Try a shorter search — a single word like "support" usually works better than a full title.'
+       : 'Run a scan, or change the filter above. Jobs appear here the moment they are found.'));
+}
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('#f-filter button').forEach(b => b.classList.toggle('on', b.dataset.f === f));
+  renderJobs();
+}
+
+function renderTracker(){
+  const box = $('track-list');
+  if(!box) return;
+  box.innerHTML = '';
+  const rows = (S && S.tracker) || [];
+  if(!rows.length){ box.appendChild(emptyBox(ART.tracker, 'No applications tracked yet', 'Run a scan, then hit “Import to tracker”. Everything you send lands here with a status and a follow-up date.')); return; }
+  const wrap = document.createElement('div');
+  wrap.className = 'panel'; wrap.style.padding = '4px 12px';
+  const scroll = document.createElement('div');
+  scroll.className = 'table-wrap';
+  const t = document.createElement('table');
+  t.innerHTML = '<thead><tr><th>Role</th><th>Status</th><th>Follow-up</th></tr></thead>';
+  const tb = document.createElement('tbody');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    const a = document.createElement('div');
+    a.textContent = r['Job Title'] || '';
+    a.style.fontWeight = '700';
+    const b = document.createElement('div');
+    b.className = 'meta';
+    b.textContent = [r['Company'], r['Location']].filter(Boolean).join(' · ');
+    td.append(a, b);
+    if(r['Apply Link']) td.appendChild(link(r['Apply Link'], 'dl', 'Open job', ICON_EXT));
+    tr.appendChild(td);
+    const td2 = document.createElement('td');
+    const sel = document.createElement('select');
+    ['TO_APPLY','EMAILED','APPLIED','WATCHLIST'].forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if(s === (r['Status'] || 'TO_APPLY')) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.onchange = () => saveStatus(r, sel.value);
+    td2.appendChild(sel);
+    tr.appendChild(td2);
+    const td3 = document.createElement('td');
+    td3.className = 'meta';
+    td3.textContent = r['Next Follow-up'] || '—';
+    tr.appendChild(td3);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  scroll.appendChild(t);
+  wrap.appendChild(scroll);
+  box.appendChild(wrap);
+}
+async function saveStatus(r, status){
+  await fetch('/api/status', {method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id: r['Apply Link'] || r['Application ID'] || '', status,
+      date_applied: status === 'APPLIED' ? new Date().toISOString().slice(0,10) : ''})});
+  refresh();
+}
+function renderMail(){
+  const box = $('mail-status');
+  if(!box || !S || box.dataset.done) return;
+  box.innerHTML = `<span class="pill">${esc(S.staged_emails)} emails staged</span>`;
+}
+
+/* ---------------- background work with live progress ---------------- */
+function progress(name, elapsed, extra){
+  const box = document.createElement('div');
+  const p = document.createElement('div');
+  p.className = 'pill run';
+  const dot = document.createElement('span'); dot.className = 'dot';
+  p.append(dot, document.createTextNode(` ${name} · ${elapsed}s`));
+  const bar = document.createElement('div'); bar.className = 'prog';
+  bar.appendChild(document.createElement('i'));
+  box.append(p, bar);
+  if(extra){
+    const l = document.createElement('div');
+    l.className = 'log'; l.textContent = extra;
+    box.appendChild(l);
+  }
+  return box;
+}
+function watch(taskId, button, hostId, onDone){
+  if(pollTimer) clearInterval(pollTimer);
+  const host = $(hostId);
+  if(button){
+    button.dataset.label = button.dataset.label || button.textContent;
+    button.classList.add('busy');
+    button.textContent = 'Working…';
+  }
+  pollTimer = setInterval(async () => {
+    let t;
+    try{ t = await (await fetch('/api/task/' + taskId)).json(); }
+    catch(e){ return; }
+    const elapsed = Math.round((Date.now() - t.started * 1000) / 1000);
+    if(host){
+      host.innerHTML = '';
+      host.appendChild(progress(t.name, elapsed,
+        (t.log || '').split('\n').slice(-14).join('\n')));
+    }
+    if(t.status !== 'running'){
+      clearInterval(pollTimer);
+      pollTimer = null;
+      if(button){
+        button.classList.remove('busy');
+        button.textContent = button.dataset.label;
+      }
+      if(host){
+        host.innerHTML = '';
+        const ok = t.status === 'done' && t.ok;
+        const secs = Math.round((t.finished || 0) - t.started);
+        host.appendChild(pill(ok ? 'ok' : 'bad',
+                              `${ok ? '✓ Finished' : '✕ Failed'} · ${t.name} · ${secs}s`));
+        const l = document.createElement('div');
+        l.className = 'log';
+        l.textContent = (t.log || '').split('\n').slice(-20).join('\n');
+        host.appendChild(l);
+      }
+      onDone && onDone(t);
+    }
+  }, 1500);
+}
+async function act(what, button){
+  const hostId = what === 'extract' ? 'mail-status' : 'jobs-status';
+  const res = await fetch('/api/' + what, {method:'POST',
+    headers:{'Content-Type':'application/json'}, body:'{}'});
+  const r = await res.json().catch(()=>({}));
+  const host = $(hostId);
+  if(res.status === 401){ toast('Session expired — log in again.'); return; }
+  if(!r.ok){
+    if(host){
+      host.innerHTML = '';
+      host.appendChild(pill('warn', r.error || 'Could not start.'));
+    }
+    toast(r.error || 'Could not start that.');
+    return;
+  }
+  watch(r.task, button, hostId, () => refresh());
+}
+
+/* ---------------- Find Work tab ---------------- */
+async function loadCustomer(){
+  try{
+    const res = await fetch('/api/customer');
+    if(res.status === 401){
+      // Session expired, redirect to login
+      if(currentUser?.type === 'customer'){
+        location.reload();
+      }
+      return;
+    }
+    CUST = await res.json();
+  }catch(e){ CUST = null; }
+  const p = (CUST && CUST.profile) || {};
+  if(p.name) $('f-name').value = p.name;
+  if(p.keywords) $('f-keys').value = p.keywords;
+  if(p.location) $('f-loc').value = p.location;
+  const host = $('f-status');
+  if(host){
+    host.innerHTML = '';
+    if(!CUST || !CUST.cv_present){
+      host.appendChild(pill('warn', 'No CV uploaded yet'));
+    }else{
+      const bits = ['✓ CV ready'];
+      if(p.cv_source) bits.push(p.cv_source);
+      if(p.cv_quality != null) bits.push('quality ' + p.cv_quality);
+      host.appendChild(pill('ok', bits.join(' · ')));
+    }
+  }
+  renderCustomerResults();
+}
+function pill(cls, text){
+  const s = document.createElement('span');
+  s.className = 'pill ' + (cls || '');
+  s.textContent = text;
+  return s;
+}
+function renderCustomerResults(){
+  const box = $('f-results');
+  if(!box) return;
+  box.innerHTML = '';
+  const results = (CUST && CUST.results) || [];
+  if(!results.length){
+    box.appendChild(emptyBox(ART.results, 'No tailored CVs yet',
+      'Save the details above, upload a CV, then press “Find jobs and tailor CVs”. Your finished CVs collect here.'));
+    return;
+  }
+  const h = document.createElement('h2');
+  h.textContent = `Ready to send (${results.length})`;
+  h.style.margin = '24px 0 14px';
+  box.appendChild(h);
+  results.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'job new';
+    const top = document.createElement('div');
+    top.className = 'job-top';
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    const a = avatarFor(r.company || r.title);
+    av.textContent = a.initials;
+    av.style.background = a.grad;
+    av.setAttribute('aria-hidden', 'true');
+    top.appendChild(av);
+    const main = document.createElement('div');
+    main.className = 'job-main';
+    const t = document.createElement('h4');
+    t.textContent = r.title;
+    const m = document.createElement('div');
+    m.className = 'meta';
+    m.textContent = [r.company, r.location, r.source].filter(Boolean).join(' · ');
+    main.append(t, m);
+    top.appendChild(main);
+    if(r.fit != null){
+      const sc = document.createElement('div');
+      sc.className = 'score';
+      sc.innerHTML = '<b>' + esc(r.fit) + '</b><span>fit</span>';
+      top.appendChild(sc);
+    }
+    el.appendChild(top);
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    if(r.fit != null) tags.appendChild(tag('score', 'fit ' + r.fit));
+    if(r.qc && r.qc.length) tags.appendChild(tag('', 'checked: ' + r.qc.length + ' fix(es)'));
+    el.appendChild(tags);
+    const acts = document.createElement('div');
+    acts.className = 'acts';
+    if(r.link) acts.appendChild(link(r.link, 'go', 'Open job', ICON_EXT));
+    if(r.cv) acts.appendChild(link('/files/' + encodeURIComponent(r.cv), 'dl', 'Tailored CV', ICON_DL));
+    if(r.letter) acts.appendChild(link('/files/' + encodeURIComponent(r.letter), 'dl', 'Cover letter', ICON_DL));
+    el.appendChild(acts);
+    box.appendChild(el);
+  });
+}
+function setTop(n){
+  topN = n;
+  document.querySelectorAll('#f-top button').forEach(b => b.classList.toggle('on', +b.dataset.top === n));
+}
+async function saveProfile(){
+  const body = {name:$('f-name').value.trim(), keywords:$('f-keys').value.trim(),
+                location:$('f-loc').value};
+  if(!body.keywords){ $('f-saved').textContent = 'Add at least one keyword first.'; return; }
+  await fetch('/api/customer/profile', {method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  $('f-saved').textContent = '✓ Saved. Step 2 next: upload their CV.';
+  await loadCustomer();
+}
+async function uploadCv(){
+  const el = $('f-file');
+  if(!el.files || !el.files[0]){ toast('Choose a CV file first.'); return; }
+  const host = $('f-cv');
+  host.innerHTML = '';
+  host.appendChild(pill('run', 'Uploading and checking the CV…'));
+  const fd = new FormData();
+  fd.append('file', el.files[0]);
+  try{
+    const res = await fetch('/api/customer/cv', {method:'POST', body:fd});
+    const r = await res.json().catch(()=>({ok:false, out:'upload failed'}));
+    if(!res.ok || !r.ok) throw new Error(r.out || 'upload failed');
+    await loadCustomer();
+    toast('CV saved.', 'ok');
+  }catch(e){
+    host.innerHTML = '';
+    host.appendChild(pill('bad', 'Upload failed — ' + (e.message || 'unknown error')));
+  }
+}
+async function runFind(){
+  const btn = $('btn-find');
+  if(btn.classList.contains('busy')) return;
+  const pin = $('f-pin').value.trim();
+  if(!pin){ toast('Enter the send PIN first.'); $('f-pin').focus(); return; }
+  btn.dataset.label = 'Find jobs and tailor CVs';
+  const res = await fetch('/api/customer/run', {method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pin, top:topN, cover:$('f-cover').checked})});
+  const r = await res.json().catch(()=>({}));
+  if(res.status === 401){
+    $('f-status').innerHTML = '';
+    $('f-status').appendChild(pill('bad', 'Wrong PIN — nothing was started.'));
+    return;
+  }
+  if(!r.ok){
+    $('f-status').innerHTML = '';
+    $('f-status').appendChild(pill('warn', r.error || 'Could not start.'));
+    return;
+  }
+  $('f-status').innerHTML = '';
+  watch(r.task, btn, 'f-status', () => loadCustomer());
+}
+async function previewEmails(){
+  const host = $('mail-status');
+  host.innerHTML = '';
+  host.appendChild(pill('run', 'Building preview…'));
+  const r = await (await fetch('/api/email_preview')).json().catch(()=>({out:'failed'}));
+  host.innerHTML = '';
+  const p = document.createElement('div');
+  p.className = 'pill ok';
+  p.textContent = 'Dry run — nothing was sent';
+  const l = document.createElement('div');
+  l.className = 'log';
+  l.textContent = (r.out || '').split('\n').slice(-25).join('\n');
+  host.append(p, l);
+}
+async function sendEmails(){
+  const pin = $('m-pin').value.trim();
+  if(!pin){ toast('Enter the send PIN first.'); return; }
+  if(!confirm('Send real emails from your Gmail account now?')) return;
+  const limit = $('m-limit').value.trim();
+  const body = {pin};
+  if(limit) body.limit = parseInt(limit, 10);
+  const btn = $('btn-send');
+  btn.dataset.label = 'Send emails';
+  const res = await fetch('/api/send_emails', {method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const r = await res.json().catch(()=>({}));
+  if(res.status === 401){
+    $('mail-status').innerHTML = '';
+    $('mail-status').appendChild(pill('bad', 'Wrong PIN — nothing was sent.'));
+    return;
+  }
+  if(!r.ok){
+    $('mail-status').innerHTML = '';
+    $('mail-status').appendChild(pill('warn', r.error || 'Could not start.'));
+    return;
+  }
+  $('mail-status').innerHTML = '';
+  watch(r.task, btn, 'mail-status', () => refresh());
+}
+
+/* ---------------- billing ---------------- */
+async function loadBilling(){
+  try{
+    const res = await fetch('/api/billing/status');
+    if(!res.ok) throw new Error('Failed to load billing');
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error);
+
+    const plan = data.subscription_status || 'trial';
+    const expires = data.subscription_expires_at ? new Date(data.subscription_expires_at).toLocaleDateString() : '—';
+    $('billing-plan').innerHTML = `
+      <strong>${esc(plan.charAt(0).toUpperCase() + plan.slice(1))}</strong> ${plan === 'active' ? `· Expires ${esc(expires)}` : ''}
+      <span style="float:right;color:var(--ok);font-weight:700">${plan === 'active' ? '● Active' : '○ Trial'}</span>
+    `;
+
+    // Usage table
+    const tbody = document.querySelector('#usage-table tbody');
+    const used = {
+      scan: await (await fetch('/api/usage?resource=scan')).json().catch(()=>({used:0})),
+      tailor: await (await fetch('/api/usage?resource=tailor')).json().catch(()=>({used:0})),
+      email: await (await fetch('/api/usage?resource=email')).json().catch(()=>({used:0})),
+    };
+    const num = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+    const limits = {
+      scan: num(data.monthly_scan_limit) || 30,
+      tailor: num(data.monthly_tailor_limit) || 50,
+      email: num(data.monthly_email_limit) || 100,
+    };
+    const usedScan = num(used.scan && used.scan.used);
+    const usedTailor = num(used.tailor && used.tailor.used);
+    const usedEmail = num(used.email && used.email.used);
+    tbody.innerHTML = `
+      <tr><td>Job scans</td><td>${usedScan}</td><td>${limits.scan}</td><td>${Math.max(0, limits.scan - usedScan)}</td></tr>
+      <tr><td>CV tailoring</td><td>${usedTailor}</td><td>${limits.tailor}</td><td>${Math.max(0, limits.tailor - usedTailor)}</td></tr>
+      <tr><td>Emails sent</td><td>${usedEmail}</td><td>${limits.email}</td><td>${Math.max(0, limits.email - usedEmail)}</td></tr>
+    `;
+    $('billing-sum').textContent = plan === 'active' ? 'Subscription active' : 'On trial — upgrade for full access';
+  }catch(e){
+    $('billing-plan').textContent = 'Failed to load billing';
+    console.error(e);
+  }
+}
+
+async function startCheckout(){
+  const btn = $('btn-checkout');
+  btn.disabled = true;
+  btn.textContent = 'Redirecting…';
+  try{
+    const res = await fetch('/api/checkout', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+    const data = await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.error || 'Checkout failed');
+    window.location.href = data.authorization_url;
+  }catch(e){
+    toast(e.message, 'err');
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3.5L21 6.5"/><path d="M15 6.5h6v6"/></svg> Upgrade to &#8358;1,500/mo';
+  }
+}
+
+let toastTimer = null;
+function toast(msg, type){
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 4000);
+}
+
+setTop(5);
+initTheme();
+refresh();
+</script>
+</body>
+</html>
